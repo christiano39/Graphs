@@ -93,10 +93,9 @@ class Graph:
                 if vertex == destination_vertex:
                     return path
                 visited.add(vertex)
-            for n in self.get_neighbors(vertex):
-                new_path = path.copy()
-                new_path.append(n)
-                q.enqueue(new_path)
+                for n in self.get_neighbors(vertex):
+                    new_path = path + [n]
+                    q.enqueue(new_path)
 
         return None
 
