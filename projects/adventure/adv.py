@@ -5,6 +5,9 @@ from world import World
 import random
 from ast import literal_eval
 
+from util import Queue, Stack
+from helpers import add_room_to_map, get_unexplored_direction, get_opposite_direction
+
 # Load world
 world = World()
 
@@ -13,8 +16,8 @@ world = World()
 # map_file = "maps/test_line.txt"
 # map_file = "maps/test_cross.txt"
 # map_file = "maps/test_loop.txt"
-# map_file = "maps/test_loop_fork.txt"
-map_file = "maps/main_maze.txt"
+map_file = "maps/test_loop_fork.txt"
+# map_file = "maps/main_maze.txt"
 
 # Loads the map into a dictionary
 room_graph=literal_eval(open(map_file, "r").read())
@@ -25,11 +28,51 @@ world.print_rooms()
 
 player = Player(world.starting_room)
 
+##########################################################################################################
+
 # Fill this out with directions to walk
 # traversal_path = ['n', 'n']
+room_map = {}
+add_room_to_map(room_map, player.current_room)
+
+s = Stack()
+
 traversal_path = []
 
+#while there is an unexplored direction, move that way and log it to the map and the traversal path
+while len(room_map) < len(world.rooms):
+    while get_unexplored_direction(room_map, player.current_room):
+        direction = get_unexplored_direction(room_map, player.current_room)
+        old_room = player.current_room
 
+        s.push(get_opposite_direction(direction))
+
+        if direction is not None: 
+            player.travel(direction)
+
+
+        if player.current_room.id not in room_map:
+            add_room_to_map(room_map, player.current_room)
+
+        room_map[player.current_room.id][get_opposite_direction(direction)] = old_room.id
+        room_map[old_room.id][direction] = player.current_room.id
+
+        traversal_path.append(direction)
+
+    while get_unexplored_direction(room_map, player.current_room) is None and s.size() > 0:
+        # if player.current_room.id == 0 and s.size() > 1:
+        #     s.stack = []
+        #     break
+        
+        direction = s.pop()
+        if direction is not None: 
+            player.travel(direction)
+        traversal_path.append(direction)
+
+print(room_map)
+print(traversal_path)
+
+##########################################################################################################
 
 # TRAVERSAL TEST
 visited_rooms = set()
@@ -51,12 +94,12 @@ else:
 #######
 # UNCOMMENT TO WALK AROUND
 #######
-player.current_room.print_room_description(player)
-while True:
-    cmds = input("-> ").lower().split(" ")
-    if cmds[0] in ["n", "s", "e", "w"]:
-        player.travel(cmds[0], True)
-    elif cmds[0] == "q":
-        break
-    else:
-        print("I did not understand that command.")
+# player.current_room.print_room_description(player)
+# while True:
+#     cmds = input("-> ").lower().split(" ")
+#     if cmds[0] in ["n", "s", "e", "w"]:
+#         player.travel(cmds[0], True)
+#     elif cmds[0] == "q":
+#         break
+#     else:
+#         print("I did not understand that command.")
