@@ -16,8 +16,8 @@ world = World()
 # map_file = "maps/test_line.txt"
 # map_file = "maps/test_cross.txt"
 # map_file = "maps/test_loop.txt"
-map_file = "maps/test_loop_fork.txt"
-# map_file = "maps/main_maze.txt"
+# map_file = "maps/test_loop_fork.txt"
+map_file = "maps/main_maze.txt"
 
 # Loads the map into a dictionary
 room_graph=literal_eval(open(map_file, "r").read())
@@ -33,23 +33,31 @@ player = Player(world.starting_room)
 # Fill this out with directions to walk
 # traversal_path = ['n', 'n']
 room_map = {}
-add_room_to_map(room_map, player.current_room)
+room_map = add_room_to_map(room_map, player.current_room)
 
 s = Stack()
 
 traversal_path = []
 
-#while there is an unexplored direction, move that way and log it to the map and the traversal path
 while len(room_map) < len(world.rooms):
+
+    # while there is an unexplored direction, move that way and log it to the map and the traversal path
     while get_unexplored_direction(room_map, player.current_room):
+        if len(room_map) == len(world.rooms):
+            break
+        
         direction = get_unexplored_direction(room_map, player.current_room)
         old_room = player.current_room
+        
+        for i in range(len(s.stack)):
+            if len(s.stack) > 0 and s.stack[i][0] == player.current_room.id:
+                print("cycle")
+                s.stack = []
 
-        s.push(get_opposite_direction(direction))
+        s.push((player.current_room.id, get_opposite_direction(direction)))
 
         if direction is not None: 
             player.travel(direction)
-
 
         if player.current_room.id not in room_map:
             add_room_to_map(room_map, player.current_room)
@@ -59,18 +67,17 @@ while len(room_map) < len(world.rooms):
 
         traversal_path.append(direction)
 
-    while get_unexplored_direction(room_map, player.current_room) is None and s.size() > 0:
-        # if player.current_room.id == 0 and s.size() > 1:
-        #     s.stack = []
-        #     break
-        
-        direction = s.pop()
+    while get_unexplored_direction(room_map, player.current_room) is None and s.size() > 0:   
+        if len(room_map) == len(world.rooms):
+            break
+
+        direction = s.pop()[1]
         if direction is not None: 
             player.travel(direction)
         traversal_path.append(direction)
 
-print(room_map)
-print(traversal_path)
+# print(traversal_path)
+# print(room_map)
 
 ##########################################################################################################
 
