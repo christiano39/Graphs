@@ -48,13 +48,8 @@ while len(room_map) < len(world.rooms):
         
         direction = get_unexplored_direction(room_map, player.current_room)
         old_room = player.current_room
-        
-        for i in range(len(s.stack)):
-            if len(s.stack) > 0 and s.stack[i][0] == player.current_room.id:
-                print("cycle")
-                s.stack = []
 
-        s.push((player.current_room.id, get_opposite_direction(direction)))
+        s.push(get_opposite_direction(direction))
 
         if direction is not None: 
             player.travel(direction)
@@ -71,7 +66,7 @@ while len(room_map) < len(world.rooms):
         if len(room_map) == len(world.rooms):
             break
 
-        direction = s.pop()[1]
+        direction = s.pop()
         if direction is not None: 
             player.travel(direction)
         traversal_path.append(direction)
